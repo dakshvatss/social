@@ -35,6 +35,11 @@ async def root():
     return FileResponse("static/index.html")
 
 
+@app.get("/analytics")
+async def analytics_page():
+    return FileResponse("static/analytics.html")
+
+
 # ── Helpers ────────────────────────────────────────────────────────────────────
 SORTABLE = {
     "id":                  SocialProfile.id,
@@ -212,6 +217,197 @@ async def stats(db: Session = Depends(get_db)):
         },
         "by_designation": [{"label": d or "Unknown", "count": c} for d, c in by_designation],
         "by_zone":        [{"label": z or "Unknown", "count": c} for z, c in by_zone],
+    }
+
+
+# ── Analytics ─────────────────────────────────────────────────────────────────
+@app.get("/api/analytics/platform-comparison")
+async def platform_comparison(
+    zone: Optional[str] = None,
+    party_district: Optional[str] = None,
+    constituency: Optional[str] = None,
+    designation: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    """Average followers per platform with optional filters"""
+    q = db.query(SocialProfile)
+    q = _apply_filters(q, None, zone, party_district, constituency, designation, False, False)
+    
+    fb_avg = db.query(func.avg(SocialProfile.facebook_followers)).filter(
+        SocialProfile.facebook_followers.isnot(None)
+    ).select_from(q.subquery()).scalar() or 0
+    
+    tw_avg = db.query(func.avg(SocialProfile.twitter_followers)).filter(
+        SocialProfile.twitter_followers.isnot(None)
+    ).select_from(q.subquery()).scalar() or 0
+    
+    ig_avg = db.query(func.avg(SocialProfile.instagram_followers)).filter(
+        SocialProfile.instagram_followers.isnot(None)
+    ).select_from(q.subquery()).scalar() or 0
+    
+    return {
+        "labels": ["Facebook", "Twitter", "Instagram"],
+        "datasets": [{
+            "label": "Avg Followers",
+            "data": [int(fb_avg), int(tw_avg), int(ig_avg)],
+            "backgroundColor": ["#1877F2", "#1DA1F2", "#E1306C"]
+        }]
+    }
+
+
+@app.get("/api/analytics/top-profiles")
+async def top_profiles(
+    zone: Optional[str] = None,
+    party_district: Optional[str] = None,
+    constituency: Optional[str] = None,
+    designation: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    """Top 15 profiles by total followers with optional filters"""
+    q = db.query(
+        SocialProfile.name,
+        SocialProfile.zone,
+        SocialProfile.facebook_followers,
+        SocialProfile.twitter_followers,
+        SocialProfile.instagram_followers
+    )
+    
+    base_q = db.query(SocialProfile)
+    base_q = _apply_filters(base_q, None, zone, party_district, constituency, designation, False, False)
+    
+    profiles = q.filter(SocialProfile.id.in_([p.id for p in base_q])).filter(
+        (SocialProfile.facebook_followers.isnot(None)) |
+        (SocialProfile.twitter_followers.isnot(None)) |
+        (SocialProfile.instagram_followers.isnot(None))
+    ).all()
+    
+    top = sorted(
+        [{
+            "name": p[0],
+            "zone": p[1],
+            "total": (p[2] or 0) + (p[3] or 0) + (p[4] or 0)
+        } for p in profiles],
+        key=lambda x: x["total"],
+        reverse=True
+    )[:15]
+    
+    return {
+        "labels": [p["name"][:20] + "..." if len(p["name"]) > 20 else p["name"] for p in top],
+        "datasets": [{
+            "label": "Total Followers",
+            "data": [p["total"] for p in top],
+            "backgroundColor": "#36A2EB"
+        }]
+    }
+
+
+@app.get("/api/analytics/active-status")
+async def active_status_dist(
+    zone: Optional[str] = None,
+    party_district: Optional[str] = None,
+    constituency: Optional[str] = None,
+    designation: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    """Active status distribution across platforms with optional filters"""
+    q = db.query(SocialProfile)
+    q = _apply_filters(q, None, zone, party_district, constituency, designation, False, False)
+    
+    fb_active = q.filter(SocialProfile.facebook_active_status.ilike("active")).count()
+    tw_active = q.filter(SocialProfile.twitter_active_status.ilike("active")).count()
+    ig_active = q.filter(SocialProfile.instagram_active_status.ilike("active")).count()
+    
+    return {
+        "labels": ["Facebook", "Twitter", "Instagram"],
+        "datasets": [{
+            "label": "Active Profiles",
+            "data": [fb_active, tw_active, ig_active],
+            "backgroundColor": ["#1877F2", "#1DA1F2", "#E1306C"]
+        }]
+    }
+
+
+@app.get("/api/analytics/verified-status")
+async def verified_status_dist(
+    zone: Optional[str] = None,
+    party_district: Optional[str] = None,
+    constituency: Optional[str] = None,
+    designation: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    """Verified status distribution across platforms with optional filters"""
+    q = db.query(SocialProfile)
+    q = _apply_filters(q, None, zone, party_district, constituency, designation, False, False)
+    
+    fb_verified = q.filter(SocialProfile.facebook_verified_status.ilike("verified")).count()
+    tw_verified = q.filter(SocialProfile.twitter_verified_status.ilike("verified")).count()
+    ig_verified = q.filter(SocialProfile.instagram_verified_status.ilike("verified")).count()
+    
+    return {
+        "labels": ["Facebook", "Twitter", "Instagram"],
+        "datasets": [{
+            "label": "Verified Profiles",
+            "data": [fb_verified, tw_verified, ig_verified],
+            "backgroundColor": ["#1877F2", "#1DA1F2", "#E1306C"]
+        }]
+    }
+
+
+@app.get("/api/analytics/zone-followers")
+async def zone_followers(
+    zone: Optional[str] = None,
+    party_district: Optional[str] = None,
+    constituency: Optional[str] = None,
+    designation: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    """Total followers by zone with optional filters"""
+    q = db.query(SocialProfile)
+    q = _apply_filters(q, None, zone, party_district, constituency, designation, False, False)
+    
+    zones = q.with_entities(
+        SocialProfile.zone,
+        func.sum(SocialProfile.facebook_followers + SocialProfile.twitter_followers + SocialProfile.instagram_followers).label("total_followers")
+    ).filter(
+        (SocialProfile.facebook_followers.isnot(None)) |
+        (SocialProfile.twitter_followers.isnot(None)) |
+        (SocialProfile.instagram_followers.isnot(None))
+    ).group_by(SocialProfile.zone).order_by(desc("total_followers")).limit(12).all()
+    
+    return {
+        "labels": [z[0] or "Unknown" for z in zones],
+        "datasets": [{
+            "label": "Total Followers by Zone",
+            "data": [int(z[1] or 0) for z in zones],
+            "backgroundColor": "#FFCE56"
+        }]
+    }
+
+
+@app.get("/api/analytics/designation-count")
+async def designation_count(
+    zone: Optional[str] = None,
+    party_district: Optional[str] = None,
+    constituency: Optional[str] = None,
+    designation: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    """Profile count by designation with optional filters"""
+    q = db.query(SocialProfile)
+    q = _apply_filters(q, None, zone, party_district, constituency, designation, False, False)
+    
+    designations = q.with_entities(
+        SocialProfile.designation,
+        func.count(SocialProfile.id).label("count")
+    ).group_by(SocialProfile.designation).order_by(desc("count")).limit(10).all()
+    
+    return {
+        "labels": [d[0] or "Unknown" for d in designations],
+        "datasets": [{
+            "label": "Profiles by Designation",
+            "data": [d[1] for d in designations],
+            "backgroundColor": "#4BC0C0"
+        }]
     }
 
 

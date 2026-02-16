@@ -585,6 +585,7 @@
   <div class="stat-pill">🟢 Active <span class="num" id="hdr-active">—</span></div>
   <div class="stat-pill">✓ Verified <span class="num" id="hdr-verified">—</span></div>
   <div class="header-actions">
+    <a href="/analytics" class="btn btn-ghost btn-sm" title="View analytics and visualizations">📊 Analytics</a>
     <button class="btn btn-ghost btn-sm" id="btn-export">⬇ Export CSV</button>
     <button class="btn btn-primary btn-sm" id="btn-add">＋ Add Profile</button>
   </div>
@@ -1434,5 +1435,25 @@ document.getElementById('confirm-overlay').addEventListener('click', e => {
   goToPage(0);
 })();
 </script>
+
+<!-- Footer Navigation -->
+<footer class="app-footer" style="
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 15px 20px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text2);
+">
+  <div style="display: flex; gap: 20px; justify-content: center; align-items: center; flex-wrap: wrap;">
+    <span>📊 <strong>Social Profiles Intel</strong></span>
+    <span style="color: var(--text3);">•</span>
+    <a href="/" style="color: var(--accent2); text-decoration: none; font-weight: 500;">📋 Dashboard</a>
+    <span style="color: var(--text3);">•</span>
+    <a href="/analytics" style="color: var(--accent); text-decoration: none; font-weight: 500;">📊 Analytics</a>
+    <span style="color: var(--text3);">•</span>
+    <a href="/docs" style="color: var(--accent3); text-decoration: none; font-weight: 500;">📖 API Docs</a>
+  </div>
+</footer>
 </body>
 </html>

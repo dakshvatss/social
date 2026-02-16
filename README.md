@@ -5,6 +5,19 @@ AG Grid infinite-scroll tabulation, server-side filtering, and full CRUD.
 
 ---
 
+## 🔗 Quick Links
+
+Once running on `http://localhost:8000`:
+
+| Link | Purpose |
+|------|---------|
+| [📋 Dashboard](http://localhost:8000) | Main profiles table with CRUD operations |
+| [📊 Analytics](http://localhost:8000/analytics) | Real-time visualizations & statistics |
+| [📖 API Docs](http://localhost:8000/docs) | Interactive Swagger UI documentation |
+| [📖 ReDoc](http://localhost:8000/redoc) | Alternative API documentation |
+
+---
+
 ## Tech Stack
 
 | Layer      | Technology               | Why                                      |
@@ -87,23 +100,36 @@ The application will start on `http://localhost:8000`
 | CSV Export           | Respects current filters                        |
 | Stats sidebar        | Total followers per platform, active counts     |
 | Header pills         | Total, active, verified counts live             |
+| **Analytics Dashboard** | **Real-time visualizations & statistics** |
+| Platform comparison  | Average followers by platform (bar chart)       |
+| Top profiles         | 15 profiles with highest total followers        |
+| Active/Verified dist | Distribution across all platforms               |
+| Zone analysis        | Total followers by zone (geographical insight)  |
+| Designation breakdown| Profile count by designation/role               |
+| Auto-refresh         | Charts update every 30 seconds automatically    |
 
 ---
 
 ## API Endpoints
 
-| Method | Path                          | Description                        |
-|--------|-------------------------------|------------------------------------|
-| GET    | `/api/profiles`               | List with pagination + filters     |
-| GET    | `/api/profiles/{id}`          | Single profile                     |
-| POST   | `/api/profiles`               | Create                             |
-| PUT    | `/api/profiles/{id}`          | Update                             |
-| DELETE | `/api/profiles/{id}`          | Delete                             |
-| POST   | `/api/profiles/bulk-delete`   | Bulk delete `{ids: [1,2,3]}`       |
-| GET    | `/api/stats`                  | Aggregated stats                   |
-| GET    | `/api/filter-options`         | Dropdown values                    |
-| GET    | `/api/export/csv`             | CSV export (filter-aware)          |
-| GET    | `/docs`                       | Auto-generated Swagger UI          |
+| Method | Path                                  | Description                        |
+|--------|---------------------------------------|------------------------------------|
+| GET    | `/api/profiles`                       | List with pagination + filters     |
+| GET    | `/api/profiles/{id}`                  | Single profile                     |
+| POST   | `/api/profiles`                       | Create                             |
+| PUT    | `/api/profiles/{id}`                  | Update                             |
+| DELETE | `/api/profiles/{id}`                  | Delete                             |
+| POST   | `/api/profiles/bulk-delete`           | Bulk delete `{ids: [1,2,3]}`       |
+| GET    | `/api/stats`                          | Aggregated stats                   |
+| GET    | `/api/filter-options`                 | Dropdown values                    |
+| GET    | `/api/export/csv`                     | CSV export (filter-aware)          |
+| **GET**    | **`/api/analytics/platform-comparison`** | **Avg followers per platform**  |
+| **GET**    | **`/api/analytics/top-profiles`**      | **Top 15 profiles by followers** |
+| **GET**    | **`/api/analytics/active-status`**     | **Active profile counts**       |
+| **GET**    | **`/api/analytics/verified-status`**   | **Verified profile counts**     |
+| **GET**    | **`/api/analytics/zone-followers`**    | **Total followers by zone**     |
+| **GET**    | **`/api/analytics/designation-count`** | **Profiles by designation**     |
+| GET    | `/docs`                               | Auto-generated Swagger UI          |
 
 ---
 
