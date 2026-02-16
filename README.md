@@ -107,7 +107,7 @@ The application will start on `http://localhost:8000`
 
 ---
 
-## Performance Notes
+## Performance Notes:
 
 - Indexes are created on zone, district, constituency, designation, name, and all followers columns.
 - The grid uses AG Grid's **Infinite Row Model** — only 200 rows loaded per scroll block.
