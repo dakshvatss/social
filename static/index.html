@@ -674,7 +674,7 @@
       <!-- Left: result info + actions -->
       <div class="toolbar-left">
         <span class="result-count" id="result-count">Loading…</span>
-        <button class="btn btn-ghost btn-sm" id="btn-col-toggle" onclick="toggleColumnGroup()">⊞ Columns</button>
+        <button class="btn btn-ghost btn-sm" id="btn-col-toggle" onclick="toggleColumnGroup()">⊟ Hide Contact</button>
         <button class="btn btn-danger btn-sm" id="btn-bulk-del" style="display:none" onclick="openBulkDelete()">
           🗑 Delete Selected (<span id="sel-count">0</span>)
         </button>
@@ -1060,13 +1060,13 @@ function buildColumnDefs() {
     {
       headerName: 'Contact', marryChildren: true,
       children: [
-        { field: 'whatsapp_number', headerName: 'WhatsApp', width: 130, hide: true },
-        { field: 'email_id',        headerName: 'Email',    width: 200, hide: true,
+        { field: 'whatsapp_number', headerName: 'WhatsApp', width: 130 },
+        { field: 'email_id',        headerName: 'Email',    width: 200,
           cellRenderer: p => p.value
             ? `<a href="mailto:${esc(p.value)}" style="color:var(--accent2)">${esc(p.value)}</a>`
             : '—' },
-        { field: 'dob',     headerName: 'DOB',     width: 100, hide: true },
-        { field: 'address', headerName: 'Address', width: 200, hide: true },
+        { field: 'dob',     headerName: 'DOB',     width: 110 },
+        { field: 'address', headerName: 'Address', width: 240 },
       ]
     },
     {
@@ -1234,15 +1234,12 @@ function updatePaginationUI() {
 }
 
 // ─────────────────────────── COLUMN TOGGLE ───────────────────
-let showContactCols = false;
+let showContactCols = true;
 function toggleColumnGroup() {
   showContactCols = !showContactCols;
   const contactFields = ['whatsapp_number','email_id','dob','address'];
-  contactFields.forEach(f => {
-    const col = gridApi.getColumnDef(f);
-    if (col) gridApi.setColumnVisible(f, showContactCols);
-  });
-  document.getElementById('btn-col-toggle').textContent = showContactCols ? '⊟ Columns' : '⊞ Columns';
+  contactFields.forEach(f => gridApi.setColumnVisible(f, showContactCols));
+  document.getElementById('btn-col-toggle').textContent = showContactCols ? '⊟ Hide Contact' : '⊞ Show Contact';
 }
 
 // ─────────────────────────── MODAL ───────────────────────────

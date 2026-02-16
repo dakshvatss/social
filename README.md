@@ -22,79 +22,51 @@ No React, no Node.js, no build step — just Python + one HTML file.
 
 ---
 
-## Quick Start
+## Quick Start (Local Setup)
 
-### 1. Clone / unzip this folder
+**Prerequisites:** PostgreSQL server running, database tables already created, PgAdmin access available
 
-```
-social_profiles_app/
-├── main.py
-├── database.py
-├── models.py
-├── schemas.py
-├── requirements.txt
-├── .env.example
-├── setup.sql
-└── static/
-    └── index.html
-```
-
-### 2. Set up PostgreSQL
-
-```sql
--- In psql as superuser:
-CREATE DATABASE social_profiles;
-```
-
-Then run the setup script in that database:
-```bash
-psql -U postgres -d social_profiles -f setup.sql
-```
-
-### 3. Load your CSV
-
-Edit `setup.sql` and uncomment the COPY block at the bottom, or run directly:
-
-```sql
--- In psql connected to social_profiles:
-COPY public.social_profiles (
-    zone, party_district, constituency, designation, name,
-    whatsapp_number, dob, address, email_id,
-    facebook_id, facebook_followers, facebook_active_status, facebook_verified_status,
-    twitter_id, twitter_followers, twitter_active_status, twitter_verified_status,
-    instagram_id, instagram_followers, instagram_active_status, instagram_verified_status
-)
-FROM 'C:\path\to\your\file.csv'
-DELIMITER ',' CSV HEADER;
-```
-
-> **If your table already exists** (id column missing), use the ALTER TABLE
-> commands in the OPTION B section of setup.sql.
-
-### 4. Configure environment
+### Step 1: Clone the Repository
 
 ```bash
-cp .env.example .env
-# Edit .env — set your DATABASE_URL
+git clone <repository-url>
+cd social
 ```
+
+### Step 2: Create Environment File
+
+Create a `.env` file in the project root with your PostgreSQL connection details:
 
 ```env
-DATABASE_URL=postgresql://postgres:yourpassword@localhost:5432/social_profiles
+DATABASE_URL=postgresql://postgres:your_password@localhost:5432/social_profiles
 ```
 
-### 5. Install Python dependencies
+Replace `your_password` with your actual PostgreSQL password and update other connection parameters if needed.
+
+### Step 3: Install Python Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 6. Run the app
+### Step 4: Run the Application
 
 ```bash
-python main.py
+python -m uvicorn main:app --reload
 ```
 
-Open **http://localhost:8000** in your browser.
+Or without hot-reload:
+```bash
+uvicorn main:app
+```
+
+The application will start on `http://localhost:8000`
+
+### Step 5: Access the Application
+
+- **Web UI:** Open browser and navigate to `http://localhost:8000`
+- **API Docs:** Visit `http://localhost:8000/docs` (interactive Swagger UI)
+- **ReDoc:** Visit `http://localhost:8000/redoc` (alternative API documentation)
 
 ---
 
