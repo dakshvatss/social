@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Profiles Intel</title>
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.3.4/dist/ag-grid-community.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #080d1a;
+    --surface:   #0e1525;
+    --surface2:  #151f35;
+    --surface3:  #1c2a45;
+    --border:    #1e2e4a;
+    --border2:   #243450;
+    --accent:    #f0a500;
+    --accent2:   #3d8ef0;
+    --accent3:   #8b5cf6;
+    --success:   #10b981;
+    --danger:    #ef4444;
+    --warning:   #f59e0b;
+    --text:      #e2eaf8;
+    --text2:     #8fa3c4;
+    --text3:     #4d6584;
+    --fb:        #1877F2;
+    --tw:        #1DA1F2;
+    --ig:        #E1306C;
+    --mono:      'JetBrains Mono', monospace;
+    --sans:      'Barlow', sans-serif;
+    --cond:      'Barlow Condensed', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ─── Header ─── */
+  .app-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .logo {
+    font-family: var(--cond);
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: var(--accent);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .logo span { color: var(--text2); font-weight: 400; font-size: 14px; letter-spacing: 0; }
+  .header-divider { width: 1px; height: 28px; background: var(--border2); }
+  .stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .stat-pill .num { color: var(--accent); font-weight: 500; }
+  .header-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+
+  /* ─── Buttons ─── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 6px; border: none; cursor: pointer;
+    font-family: var(--sans); font-size: 12px; font-weight: 600;
+    letter-spacing: 0.3px; transition: all 0.15s; white-space: nowrap;
+  }
+  .btn-primary  { background: var(--accent); color: #000; }
+  .btn-primary:hover  { background: #ffb822; }
+  .btn-ghost   { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
+  .btn-ghost:hover { background: var(--surface3); color: var(--text); }
+  .btn-danger  { background: var(--danger); color: #fff; }
+  .btn-danger:hover  { background: #dc2626; }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-success:hover { background: #059669; }
+  .btn-sm { padding: 4px 10px; font-size: 11px; }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn:disabled:hover { background: transparent; color: var(--text2); }
+  .btn-primary:disabled:hover { background: var(--accent); color: #000; }
+  .icon { font-size: 14px; }
+
+  /* ─── Layout ─── */
+  .app-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ─── Sidebar ─── */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .sidebar-section { padding: 14px 14px 0; }
+  .sidebar-label {
+    font-family: var(--cond);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 0 0 6px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 10px;
+  }
+
+  .filter-group { margin-bottom: 10px; }
+  .filter-group label {
+    display: block;
+    font-size: 11px;
+    color: var(--text2);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .filter-group input,
+  .filter-group select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 6px 10px;
+    font-family: var(--sans);
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .filter-group input:focus,
+  .filter-group select:focus { border-color: var(--accent); }
+  .filter-group select option { background: var(--surface2); }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 12px;
+    color: var(--text2);
+    cursor: pointer;
+  }
+  .toggle-row:hover { color: var(--text); }
+  .toggle {
+    width: 32px; height: 18px;
+    background: var(--border2);
+    border-radius: 9px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 12px; height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    top: 3px; left: 3px;
+    transition: transform 0.2s;
+  }
+  .toggle.on::after { transform: translateX(14px); }
+
+  .btn-reset-filters {
+    width: 100%; margin: 10px 0;
+    padding: 7px; background: transparent;
+    border: 1px dashed var(--border2); border-radius: 6px;
+    color: var(--text3); cursor: pointer; font-size: 11px;
+    font-family: var(--sans); transition: all 0.15s;
+  }
+  .btn-reset-filters:hover { border-color: var(--danger); color: var(--danger); }
+
+  /* Platform stats mini */
+  .platform-stats { padding: 0 14px 14px; }
+  .platform-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .platform-row:last-child { border-bottom: none; }
+  .platform-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .platform-name { font-size: 11px; color: var(--text2); flex: 1; font-weight: 600; }
+  .platform-num  { font-family: var(--mono); font-size: 11px; color: var(--text); }
+  .platform-sub  { font-size: 10px; color: var(--text3); }
+
+  /* ─── Main content ─── */
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ─── Toolbar ─── */
+  .grid-toolbar {
+    padding: 8px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    min-height: 46px;
+  }
+  .result-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  /* ─── Pagination Controls ─── */
+  .pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+  }
+  .page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px; height: 28px;
+    border-radius: 6px;
+    border: 1px solid var(--border2);
+    background: var(--surface2);
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .page-btn:hover:not(:disabled) {
+    background: var(--surface3);
+    color: var(--text);
+    border-color: var(--accent);
+  }
+  .page-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  .page-info {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    padding: 0 6px;
+    white-space: nowrap;
+  }
+  .page-info strong { color: var(--accent); }
+  .page-size-select {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    color: var(--text2);
+    padding: 4px 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .page-size-select:focus { border-color: var(--accent); }
+  .page-size-select option { background: var(--surface2); }
+
+  .toolbar-left { display: flex; align-items: center; gap: 8px; }
+
+  /* loading indicator */
+  .grid-loading-bar {
+    height: 2px;
+    background: var(--border);
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .grid-loading-bar::after {
+    content: '';
+    position: absolute;
+    height: 100%;
+    width: 30%;
+    background: var(--accent);
+    animation: loadSlide 1s ease-in-out infinite;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .grid-loading-bar.loading::after { opacity: 1; }
+  @keyframes loadSlide {
+    0%   { left: -30%; }
+    100% { left: 110%; }
+  }
+
+  .grid-wrap {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ─── AG Grid Theme ─── */
+  .ag-theme-social {
+    --ag-background-color: var(--bg);
+    --ag-foreground-color: var(--text);
+    --ag-header-background-color: var(--surface2);
+    --ag-header-foreground-color: var(--text2);
+    --ag-odd-row-background-color: #090e1c;
+    --ag-row-hover-color: #121e36;
+    --ag-selected-row-background-color: #162040;
+    --ag-range-selection-background-color: rgba(240,165,0,0.07);
+    --ag-border-color: var(--border);
+    --ag-secondary-border-color: var(--border);
+    --ag-cell-horizontal-border: solid var(--border);
+    --ag-font-size: 12px;
+    --ag-font-family: 'Barlow', sans-serif;
+    --ag-grid-size: 4px;
+    --ag-row-height: 36px;
+    --ag-header-height: 36px;
+    --ag-column-hover-color: #0f1828;
+    --ag-input-focus-border-color: var(--accent);
+    --ag-checkbox-checked-color: var(--accent);
+    --ag-checkbox-unchecked-color: var(--border2);
+    --ag-value-change-value-highlight-background-color: rgba(240,165,0,0.2);
+    --ag-header-column-separator-color: var(--border2);
+    --ag-header-column-separator-height: 60%;
+  }
+  .ag-theme-social .ag-header-cell-text {
+    font-family: var(--cond);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text2);
+  }
+  .ag-theme-social .ag-cell {
+    font-family: var(--mono);
+    font-size: 11px;
+    border-right: 1px solid var(--border) !important;
+    display: flex; align-items: center;
+  }
+  /* Hide built-in AG Grid paging since we use custom */
+  .ag-theme-social .ag-paging-panel { display: none !important; }
+
+  /* ─── Cell renderers ─── */
+  .badge {
+    display: inline-block;
+    padding: 1px 7px; border-radius: 3px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+    text-transform: uppercase; font-family: var(--cond);
+  }
+  .badge-active   { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+  .badge-inactive { background: rgba(100,116,139,0.12); color: #64748b; border: 1px solid rgba(100,116,139,0.2); }
+  .badge-verified { background: rgba(61,142,240,0.15); color: #60a5fa; border: 1px solid rgba(61,142,240,0.3); }
+  .badge-not-verified { background: rgba(100,116,139,0.1); color: #475569; border: 1px solid rgba(100,116,139,0.15); }
+  .badge-unknown  { background: transparent; color: var(--text3); }
+
+  .num-cell {
+    text-align: right;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .num-hi { color: var(--accent); }
+
+  .action-cell { display: flex; gap: 4px; align-items: center; }
+  .act-btn {
+    padding: 3px 8px; border-radius: 4px; border: none; cursor: pointer;
+    font-size: 10px; font-family: var(--sans); font-weight: 600;
+    transition: all 0.1s;
+  }
+  .act-edit   { background: rgba(61,142,240,0.15); color: var(--accent2); }
+  .act-edit:hover { background: rgba(61,142,240,0.3); }
+  .act-del    { background: rgba(239,68,68,0.12); color: var(--danger); }
+  .act-del:hover  { background: rgba(239,68,68,0.25); }
+
+  /* ─── Modal ─── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    width: min(700px, 95vw);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    transform: scale(0.96);
+    transition: transform 0.2s;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+  .modal-overlay.open .modal { transform: scale(1); }
+  .modal-header {
+    padding: 18px 22px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .modal-title {
+    font-family: var(--cond);
+    font-weight: 700; font-size: 18px;
+    letter-spacing: 0.5px; flex: 1;
+  }
+  .modal-close {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: transparent; border: 1px solid var(--border2);
+    color: var(--text2); cursor: pointer; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .modal-close:hover { background: var(--danger); border-color: var(--danger); color: #fff; }
+  .modal-tabs {
+    display: flex; gap: 0;
+    padding: 0 22px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .modal-tab {
+    padding: 10px 16px;
+    font-family: var(--cond);
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    color: var(--text3); cursor: pointer; border: none;
+    background: transparent; border-bottom: 2px solid transparent;
+    margin-bottom: -1px; transition: all 0.15s;
+  }
+  .modal-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .modal-tab:hover  { color: var(--text); }
+  .modal-body {
+    flex: 1; overflow-y: auto; padding: 20px 22px;
+  }
+  .modal-body::-webkit-scrollbar { width: 4px; }
+  .modal-body::-webkit-scrollbar-thumb { background: var(--border2); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .form-grid .span2 { grid-column: span 2; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group label {
+    font-size: 11px; color: var(--text2); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 8px 12px;
+    font-family: var(--sans); font-size: 13px;
+    outline: none; transition: border-color 0.15s;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { border-color: var(--accent); }
+  .form-group select option { background: var(--surface2); }
+  .form-group textarea { resize: vertical; min-height: 72px; }
+  .platform-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .platform-icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .platform-icon.fb  { background: rgba(24,119,242,0.15); color: var(--fb); }
+  .platform-icon.tw  { background: rgba(29,161,242,0.15); color: var(--tw); }
+  .platform-icon.ig  { background: rgba(225,48,108,0.15); color: var(--ig); }
+  .platform-label {
+    font-family: var(--cond);
+    font-weight: 700; font-size: 16px; letter-spacing: 0.5px;
+  }
+  .modal-footer {
+    padding: 14px 22px;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px; justify-content: flex-end;
+    background: var(--surface2);
+    border-radius: 0 0 12px 12px;
+  }
+
+  /* ─── Confirm dialog ─── */
+  .confirm-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1100;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .confirm-overlay.open { opacity: 1; pointer-events: all; }
+  .confirm-box {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 28px 30px;
+    width: min(400px, 92vw);
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+  .confirm-icon { font-size: 32px; margin-bottom: 12px; }
+  .confirm-title { font-family: var(--cond); font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .confirm-msg { color: var(--text2); font-size: 13px; margin-bottom: 22px; line-height: 1.5; }
+  .confirm-actions { display: flex; gap: 10px; justify-content: center; }
+
+  /* ─── Toast ─── */
+  #toast-container {
+    position: fixed; bottom: 20px; right: 20px; z-index: 2000;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .toast {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 10px 16px;
+    min-width: 200px; max-width: 320px;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    animation: slideUp 0.25s ease;
+  }
+  .toast.success { border-left: 3px solid var(--success); }
+  .toast.error   { border-left: 3px solid var(--danger); }
+  .toast.info    { border-left: 3px solid var(--accent2); }
+  .toast-icon { font-size: 15px; }
+  .toast-msg  { font-size: 12px; color: var(--text); flex: 1; }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ HEADER ═══════════════════════════════ -->
+<header class="app-header">
+  <div class="logo">Intel<span> / Social Profiles</span></div>
+  <div class="header-divider"></div>
+  <div class="stat-pill">Total <span class="num" id="hdr-total">—</span></div>
+  <div class="stat-pill">🟢 Active <span class="num" id="hdr-active">—</span></div>
+  <div class="stat-pill">✓ Verified <span class="num" id="hdr-verified">—</span></div>
+  <div class="header-actions">
+    <button class="btn btn-ghost btn-sm" id="btn-export">⬇ Export CSV</button>
+    <button class="btn btn-primary btn-sm" id="btn-add">＋ Add Profile</button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════ BODY ════════════════════════════════ -->
+<div class="app-body">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Search</div>
+      <div class="filter-group">
+        <input type="text" id="f-search" placeholder="Name, ID, email…" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Filters</div>
+      <div class="filter-group">
+        <label>Zone</label>
+        <select id="f-zone"><option value="">All Zones</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Party District</label>
+        <select id="f-party"><option value="">All Districts</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Constituency</label>
+        <select id="f-const"><option value="">All Constituencies</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Designation</label>
+        <select id="f-desig"><option value="">All Designations</option></select>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Quick Filters</div>
+      <div class="toggle-row" onclick="toggleFilter('active')">
+        <span>Active accounts only</span>
+        <div class="toggle" id="tog-active"></div>
+      </div>
+      <div class="toggle-row" onclick="toggleFilter('verified')">
+        <span>Verified only</span>
+        <div class="toggle" id="tog-verified"></div>
+      </div>
+      <button class="btn-reset-filters" onclick="resetFilters()">↺ Reset all filters</button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Platform Stats</div>
+    </div>
+    <div class="platform-stats">
+      <div class="platform-row">
+        <div class="platform-dot" style="background:var(--fb)"></div>
+        <span class="platform-name">Facebook</span>
+        <div>
+          <div class="platform-num" id="ps-fb-followers">—</div>
+          <div class="platform-sub" id="ps-fb-active">—</div>
+        </div>
+      </div>
+      <div class="platform-row">
+        <div class="platform-dot" style="background:var(--tw)"></div>
+        <span class="platform-name">Twitter/X</span>
+        <div>
+          <div class="platform-num" id="ps-tw-followers">—</div>
+          <div class="platform-sub" id="ps-tw-active">—</div>
+        </div>
+      </div>
+      <div class="platform-row">
+        <div class="platform-dot" style="background:var(--ig)"></div>
+        <span class="platform-name">Instagram</span>
+        <div>
+          <div class="platform-num" id="ps-ig-followers">—</div>
+          <div class="platform-sub" id="ps-ig-active">—</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+
+    <!-- Toolbar with pagination -->
+    <div class="grid-toolbar">
+      <!-- Left: result info + actions -->
+      <div class="toolbar-left">
+        <span class="result-count" id="result-count">Loading…</span>
+        <button class="btn btn-ghost btn-sm" id="btn-col-toggle" onclick="toggleColumnGroup()">⊞ Columns</button>
+        <button class="btn btn-danger btn-sm" id="btn-bulk-del" style="display:none" onclick="openBulkDelete()">
+          🗑 Delete Selected (<span id="sel-count">0</span>)
+        </button>
+      </div>
+
+      <!-- Right: pagination -->
+      <div class="pagination-controls">
+        <label style="font-size:11px;color:var(--text3);font-family:var(--mono);">Rows:</label>
+        <select class="page-size-select" id="page-size-sel" onchange="changePageSize(this.value)">
+          <option value="50">50</option>
+          <option value="100" selected>100</option>
+          <option value="200">200</option>
+          <option value="500">500</option>
+        </select>
+        <button class="page-btn" id="btn-first" onclick="goToPage(0)" title="First page">«</button>
+        <button class="page-btn" id="btn-prev"  onclick="goToPage(state.currentPage - 1)" title="Previous page">‹</button>
+        <span class="page-info" id="current-page">Page — of —</span>
+        <button class="page-btn" id="btn-next"  onclick="goToPage(state.currentPage + 1)" title="Next page">›</button>
+        <button class="page-btn" id="btn-last"  onclick="goToPage(state.totalPages - 1)" title="Last page">»</button>
+        <!-- Jump to page -->
+        <input type="number" id="jump-page" min="1"
+               style="width:46px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;
+                      color:var(--text);padding:4px 6px;font-family:var(--mono);font-size:11px;outline:none;text-align:center;"
+               placeholder="Go"
+               onkeydown="if(event.key==='Enter'){const v=parseInt(this.value)-1; if(!isNaN(v))goToPage(v); this.value='';}">
+      </div>
+    </div>
+
+    <!-- Loading bar -->
+    <div class="grid-loading-bar" id="loading-bar"></div>
+
+    <div class="grid-wrap">
+      <div id="myGrid" class="ag-theme-social" style="height:100%;width:100%"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ EDIT MODAL ═══════════════════════════ -->
+<div class="modal-overlay" id="edit-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Add Profile</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" onclick="switchTab(0)">Basic Info</button>
+      <button class="modal-tab" onclick="switchTab(1)">📘 Facebook</button>
+      <button class="modal-tab" onclick="switchTab(2)">🐦 Twitter</button>
+      <button class="modal-tab" onclick="switchTab(3)">📸 Instagram</button>
+    </div>
+    <div class="modal-body">
+      <!-- Tab 0: Basic -->
+      <div class="tab-panel active" id="tab-0">
+        <div class="form-grid">
+          <div class="form-group span2">
+            <label>Full Name</label>
+            <input type="text" id="f-name" placeholder="Enter full name">
+          </div>
+          <div class="form-group">
+            <label>Designation</label>
+            <input type="text" id="f-designation" placeholder="e.g. MLA, MP, President">
+          </div>
+          <div class="form-group">
+            <label>Zone</label>
+            <input type="text" id="f-zone-inp" placeholder="Zone">
+          </div>
+          <div class="form-group">
+            <label>Party District</label>
+            <input type="text" id="f-party-inp" placeholder="Party district">
+          </div>
+          <div class="form-group">
+            <label>Constituency</label>
+            <input type="text" id="f-const-inp" placeholder="Constituency">
+          </div>
+          <div class="form-group">
+            <label>WhatsApp Number</label>
+            <input type="text" id="f-whatsapp" placeholder="+91…">
+          </div>
+          <div class="form-group">
+            <label>Date of Birth</label>
+            <input type="text" id="f-dob" placeholder="DD/MM/YYYY">
+          </div>
+          <div class="form-group span2">
+            <label>Email ID</label>
+            <input type="email" id="f-email" placeholder="email@example.com">
+          </div>
+          <div class="form-group span2">
+            <label>Address</label>
+            <textarea id="f-address" placeholder="Full address…"></textarea>
+          </div>
+        </div>
+      </div>
+      <!-- Tab 1: Facebook -->
+      <div class="tab-panel" id="tab-1">
+        <div class="platform-header">
+          <div class="platform-icon fb">f</div>
+          <span class="platform-label" style="color:var(--fb)">Facebook</span>
+        </div>
+        <div class="form-grid">
+          <div class="form-group span2">
+            <label>Facebook ID / URL</label>
+            <input type="text" id="f-fb-id" placeholder="facebook.com/username">
+          </div>
+          <div class="form-group">
+            <label>Followers</label>
+            <input type="number" id="f-fb-followers" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label>Active Status</label>
+            <select id="f-fb-active">
+              <option value="">Unknown</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Verified Status</label>
+            <select id="f-fb-verified">
+              <option value="">Unknown</option>
+              <option value="Verified">Verified</option>
+              <option value="Not Verified">Not Verified</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!-- Tab 2: Twitter -->
+      <div class="tab-panel" id="tab-2">
+        <div class="platform-header">
+          <div class="platform-icon tw">𝕏</div>
+          <span class="platform-label" style="color:var(--tw)">Twitter / X</span>
+        </div>
+        <div class="form-grid">
+          <div class="form-group span2">
+            <label>Twitter Handle / ID</label>
+            <input type="text" id="f-tw-id" placeholder="@username">
+          </div>
+          <div class="form-group">
+            <label>Followers</label>
+            <input type="number" id="f-tw-followers" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label>Active Status</label>
+            <select id="f-tw-active">
+              <option value="">Unknown</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Verified Status</label>
+            <select id="f-tw-verified">
+              <option value="">Unknown</option>
+              <option value="Verified">Verified</option>
+              <option value="Not Verified">Not Verified</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!-- Tab 3: Instagram -->
+      <div class="tab-panel" id="tab-3">
+        <div class="platform-header">
+          <div class="platform-icon ig">◉</div>
+          <span class="platform-label" style="color:var(--ig)">Instagram</span>
+        </div>
+        <div class="form-grid">
+          <div class="form-group span2">
+            <label>Instagram ID / Handle</label>
+            <input type="text" id="f-ig-id" placeholder="@handle">
+          </div>
+          <div class="form-group">
+            <label>Followers</label>
+            <input type="number" id="f-ig-followers" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label>Active Status</label>
+            <select id="f-ig-active">
+              <option value="">Unknown</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Verified Status</label>
+            <select id="f-ig-verified">
+              <option value="">Unknown</option>
+              <option value="Verified">Verified</option>
+              <option value="Not Verified">Not Verified</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="btn-save" onclick="saveProfile()">Save Profile</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ CONFIRM ══════════════════════════════ -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">⚠️</div>
+    <div class="confirm-title" id="confirm-title">Confirm Delete</div>
+    <div class="confirm-msg" id="confirm-msg">This action cannot be undone.</div>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger" id="confirm-ok">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<script>
+'use strict';
+
+// ─────────────────────────── STATE ───────────────────────────
+const state = {
+  editingId:     null,
+  activeFilters: { active: false, verified: false },
+  currentPage:   0,
+  pageSize:      100,
+  totalRows:     0,
+  totalPages:    0,
+  sortBy:        'id',
+  sortOrder:     'asc',
+  isLoading:     false,
+};
+
+// ─────────────────────────── HELPERS ────────────────────────
+function fmtNum(n) {
+  if (n == null || n === '') return '—';
+  n = Number(n);
+  if (isNaN(n)) return '—';
+  if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+  return n.toLocaleString();
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function buildParams(extra = {}) {
+  const p = new URLSearchParams();
+  const s = document.getElementById('f-search').value.trim();
+  if (s)  p.set('search', s);
+  const z = document.getElementById('f-zone').value;
+  if (z)  p.set('zone', z);
+  const pd = document.getElementById('f-party').value;
+  if (pd) p.set('party_district', pd);
+  const c = document.getElementById('f-const').value;
+  if (c)  p.set('constituency', c);
+  const d = document.getElementById('f-desig').value;
+  if (d)  p.set('designation', d);
+  if (state.activeFilters.active)   p.set('active_only', 'true');
+  if (state.activeFilters.verified) p.set('verified_only', 'true');
+  Object.entries(extra).forEach(([k,v]) => p.set(k, v));
+  return p.toString();
+}
+
+// ─────────────────────────── LOADING BAR ────────────────────
+function setLoading(on) {
+  state.isLoading = on;
+  document.getElementById('loading-bar').classList.toggle('loading', on);
+}
+
+// ─────────────────────────── TOAST ───────────────────────────
+function showToast(msg, type = 'info') {
+  const icons = { success: '✓', error: '✕', info: 'ℹ' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span class="toast-icon">${icons[type]||'ℹ'}</span><span class="toast-msg">${msg}</span>`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// ─────────────────────────── STATS ───────────────────────────
+async function loadStats() {
+  try {
+    const data = await fetch('/api/stats').then(r => r.json());
+    document.getElementById('hdr-total').textContent = data.total.toLocaleString();
+    const active = (data.facebook.active||0) + (data.twitter.active||0) + (data.instagram.active||0);
+    const verified = (data.facebook.verified||0) + (data.twitter.verified||0) + (data.instagram.verified||0);
+    document.getElementById('hdr-active').textContent = fmtNum(active);
+    document.getElementById('hdr-verified').textContent = fmtNum(verified);
+    document.getElementById('ps-fb-followers').textContent = fmtNum(data.facebook.followers);
+    document.getElementById('ps-fb-active').textContent    = `${data.facebook.active} active`;
+    document.getElementById('ps-tw-followers').textContent = fmtNum(data.twitter.followers);
+    document.getElementById('ps-tw-active').textContent    = `${data.twitter.active} active`;
+    document.getElementById('ps-ig-followers').textContent = fmtNum(data.instagram.followers);
+    document.getElementById('ps-ig-active').textContent    = `${data.instagram.active} active`;
+  } catch(e) { console.error('Stats error:', e); }
+}
+
+// ─────────────────────────── FILTER OPTIONS ──────────────────
+async function loadFilterOptions() {
+  try {
+    const d = await fetch('/api/filter-options').then(r => r.json());
+    const fill = (id, key) => {
+      const sel = document.getElementById(id);
+      const cur = sel.value;
+      const first = sel.options[0].outerHTML;
+      sel.innerHTML = first + d[key].map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
+      if (cur) sel.value = cur;
+    };
+    fill('f-zone',  'zones');
+    fill('f-party', 'party_districts');
+    fill('f-const', 'constituencies');
+    fill('f-desig', 'designations');
+  } catch(e) { console.error('Filter options error:', e); }
+}
+
+// ─────────────────────────── TOGGLE FILTERS ──────────────────
+function toggleFilter(key) {
+  state.activeFilters[key] = !state.activeFilters[key];
+  document.getElementById('tog-' + key).classList.toggle('on', state.activeFilters[key]);
+  goToPage(0);
+}
+
+function resetFilters() {
+  document.getElementById('f-search').value = '';
+  document.getElementById('f-zone').value   = '';
+  document.getElementById('f-party').value  = '';
+  document.getElementById('f-const').value  = '';
+  document.getElementById('f-desig').value  = '';
+  state.activeFilters.active   = false;
+  state.activeFilters.verified = false;
+  document.getElementById('tog-active').classList.remove('on');
+  document.getElementById('tog-verified').classList.remove('on');
+  goToPage(0);
+}
+
+// ─────────────────────────── CELL RENDERERS ──────────────────
+function statusBadge(val) {
+  if (!val) return '<span class="badge badge-unknown">—</span>';
+  const v = val.toLowerCase();
+  if (v === 'active')    return `<span class="badge badge-active">Active</span>`;
+  if (v === 'inactive')  return `<span class="badge badge-inactive">Inactive</span>`;
+  if (v === 'verified')  return `<span class="badge badge-verified">✓ Verified</span>`;
+  if (v.includes('not')) return `<span class="badge badge-not-verified">Unverified</span>`;
+  return `<span class="badge badge-inactive">${esc(val)}</span>`;
+}
+
+function ActionCellRenderer() {}
+ActionCellRenderer.prototype.init = function(params) {
+  this.eGui = document.createElement('div');
+  this.eGui.className = 'action-cell';
+  this.eGui.innerHTML =
+    `<button class="act-btn act-edit">✎ Edit</button>` +
+    `<button class="act-btn act-del">✕ Del</button>`;
+  this.eGui.querySelector('.act-edit').addEventListener('click', () => openEditModal(params.data));
+  this.eGui.querySelector('.act-del').addEventListener('click',  () => openDeleteConfirm(params.data.id, params.data.name));
+};
+ActionCellRenderer.prototype.getGui    = function() { return this.eGui; };
+ActionCellRenderer.prototype.refresh   = function() { return false; };
+
+// ─────────────────────────── AG GRID ─────────────────────────
+let gridApi;
+
+function buildColumnDefs() {
+  return [
+    {
+      headerCheckboxSelection: true,
+      checkboxSelection: true,
+      width: 44, pinned: 'left',
+      resizable: false, sortable: false, filter: false,
+    },
+    {
+      headerName: 'Identity', marryChildren: true, pinned: 'left',
+      children: [
+        { field: 'id',             headerName: 'ID',           width: 72,  sortable: true },
+        { field: 'name',           headerName: 'Name',         width: 230, sortable: true,
+          cellRenderer: p => p.value ? `<span style="font-family:var(--sans);font-weight:600;font-size:12px">${esc(p.value)}</span>` : '—' },
+        { field: 'designation',    headerName: 'Designation',  width: 140, sortable: true },
+        { field: 'constituency',   headerName: 'Constituency', width: 140, sortable: true },
+        { field: 'zone',           headerName: 'Zone',         width: 110, sortable: true },
+        { field: 'party_district', headerName: 'District',     width: 130, sortable: true },
+      ]
+    },
+    {
+      headerName: 'Contact', marryChildren: true,
+      children: [
+        { field: 'whatsapp_number', headerName: 'WhatsApp', width: 130, hide: true },
+        { field: 'email_id',        headerName: 'Email',    width: 200, hide: true,
+          cellRenderer: p => p.value
+            ? `<a href="mailto:${esc(p.value)}" style="color:var(--accent2)">${esc(p.value)}</a>`
+            : '—' },
+        { field: 'dob',     headerName: 'DOB',     width: 100, hide: true },
+        { field: 'address', headerName: 'Address', width: 200, hide: true },
+      ]
+    },
+    {
+      headerName: '📘 Facebook', marryChildren: true,
+      children: [
+        { field: 'facebook_id',              headerName: 'FB ID',    width: 200 },
+        { field: 'facebook_followers',       headerName: 'Followers',width: 100, sortable: true,
+          cellRenderer: p => `<span class="num-cell ${Number(p.value) > 10000 ? 'num-hi' : ''}">${fmtNum(p.value)}</span>` },
+        { field: 'facebook_active_status',   headerName: 'Active',   width: 100,
+          cellRenderer: p => statusBadge(p.value) },
+        { field: 'facebook_verified_status', headerName: 'Verified', width: 100,
+          cellRenderer: p => statusBadge(p.value) },
+      ]
+    },
+    {
+      headerName: '🐦 Twitter/X', marryChildren: true,
+      children: [
+        { field: 'twitter_id',               headerName: 'Handle',   width: 180 },
+        { field: 'twitter_followers',        headerName: 'Followers',width: 100, sortable: true,
+          cellRenderer: p => `<span class="num-cell ${Number(p.value) > 10000 ? 'num-hi' : ''}">${fmtNum(p.value)}</span>` },
+        { field: 'twitter_active_status',    headerName: 'Active',   width: 100,
+          cellRenderer: p => statusBadge(p.value) },
+        { field: 'twitter_verified_status',  headerName: 'Verified', width: 100,
+          cellRenderer: p => statusBadge(p.value) },
+      ]
+    },
+    {
+      headerName: '📸 Instagram', marryChildren: true,
+      children: [
+        { field: 'instagram_id',               headerName: 'Handle',   width: 180 },
+        { field: 'instagram_followers',        headerName: 'Followers',width: 100, sortable: true,
+          cellRenderer: p => `<span class="num-cell ${Number(p.value) > 10000 ? 'num-hi' : ''}">${fmtNum(p.value)}</span>` },
+        { field: 'instagram_active_status',    headerName: 'Active',   width: 100,
+          cellRenderer: p => statusBadge(p.value) },
+        { field: 'instagram_verified_status',  headerName: 'Verified', width: 100,
+          cellRenderer: p => statusBadge(p.value) },
+      ]
+    },
+    {
+      headerName: 'Actions', pinned: 'right', width: 130,
+      sortable: false, resizable: false, filter: false,
+      cellRenderer: ActionCellRenderer,
+    },
+  ];
+}
+
+function initGrid() {
+  const opts = {
+    columnDefs: buildColumnDefs(),
+    rowModelType: 'clientSide',         // ← clientSide: we push data directly
+    defaultColDef: {
+      resizable: true,
+      sortable: false,
+      filter: false,
+      cellStyle: { display: 'flex', alignItems: 'center' },
+    },
+    rowSelection: 'multiple',
+    suppressRowClickSelection: true,
+    animateRows: false,
+    suppressPaginationPanel: true,      // hide built-in pager, we use our own
+    onSelectionChanged() {
+      const sel = gridApi.getSelectedRows().length;
+      document.getElementById('sel-count').textContent = sel;
+      document.getElementById('btn-bulk-del').style.display = sel > 0 ? '' : 'none';
+    },
+    onSortChanged(e) {
+      const model = e.api.getSortModel();
+      if (model && model.length > 0) {
+        state.sortBy    = model[0].colId;
+        state.sortOrder = model[0].sort;
+      } else {
+        state.sortBy    = 'id';
+        state.sortOrder = 'asc';
+      }
+      goToPage(0);
+    },
+  };
+
+  const container = document.getElementById('myGrid');
+  gridApi = agGrid.createGrid(container, opts);
+}
+
+// ─────────────────────────── PAGE FETCH ──────────────────────
+async function loadPage(pageNum) {
+  if (state.isLoading) return;
+  // clamp
+  if (pageNum < 0) pageNum = 0;
+
+  setLoading(true);
+  try {
+    const offset = pageNum * state.pageSize;
+    const qs = buildParams({
+      start:      offset,
+      limit:      state.pageSize,
+      sort_by:    state.sortBy,
+      sort_order: state.sortOrder,
+    });
+
+    const res  = await fetch(`/api/profiles?${qs}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    state.totalRows  = data.total;
+    state.totalPages = Math.max(1, Math.ceil(data.total / state.pageSize));
+    state.currentPage = Math.min(pageNum, state.totalPages - 1);
+
+    // Push rows into AG Grid
+    gridApi.setGridOption('rowData', data.rows || []);
+
+    updatePaginationUI();
+  } catch(e) {
+    console.error('loadPage error:', e);
+    showToast('Failed to load data: ' + e.message, 'error');
+    gridApi.setGridOption('rowData', []);
+    updatePaginationUI();
+  } finally {
+    setLoading(false);
+  }
+}
+
+function goToPage(n) {
+  n = parseInt(n);
+  if (isNaN(n)) return;
+  if (n < 0) n = 0;
+  if (state.totalPages > 0 && n >= state.totalPages) n = state.totalPages - 1;
+  loadPage(n);
+}
+
+function changePageSize(val) {
+  state.pageSize = parseInt(val) || 100;
+  goToPage(0);
+}
+
+function refreshGrid() {
+  goToPage(0);
+}
+
+// ─────────────────────────── PAGINATION UI ───────────────────
+function updatePaginationUI() {
+  const total  = state.totalRows;
+  const page   = state.currentPage;
+  const pages  = state.totalPages;
+  const size   = state.pageSize;
+
+  const rowStart = total === 0 ? 0 : page * size + 1;
+  const rowEnd   = Math.min(rowStart + size - 1, total);
+
+  document.getElementById('result-count').innerHTML =
+    total === 0
+      ? '<span style="color:var(--text3)">No records found</span>'
+      : `Rows <strong style="color:var(--accent)">${rowStart.toLocaleString()}</strong>–` +
+        `<strong style="color:var(--accent)">${rowEnd.toLocaleString()}</strong> of ` +
+        `<strong style="color:var(--text)">${total.toLocaleString()}</strong>`;
+
+  document.getElementById('current-page').innerHTML =
+    `Page <strong>${(page+1).toLocaleString()}</strong> / <strong>${pages.toLocaleString()}</strong>`;
+
+  const isFirst = page === 0;
+  const isLast  = page >= pages - 1;
+
+  document.getElementById('btn-first').disabled = isFirst;
+  document.getElementById('btn-prev').disabled  = isFirst;
+  document.getElementById('btn-next').disabled  = isLast || total === 0;
+  document.getElementById('btn-last').disabled  = isLast || total === 0;
+}
+
+// ─────────────────────────── COLUMN TOGGLE ───────────────────
+let showContactCols = false;
+function toggleColumnGroup() {
+  showContactCols = !showContactCols;
+  const contactFields = ['whatsapp_number','email_id','dob','address'];
+  contactFields.forEach(f => {
+    const col = gridApi.getColumnDef(f);
+    if (col) gridApi.setColumnVisible(f, showContactCols);
+  });
+  document.getElementById('btn-col-toggle').textContent = showContactCols ? '⊟ Columns' : '⊞ Columns';
+}
+
+// ─────────────────────────── MODAL ───────────────────────────
+let currentTab = 0;
+function switchTab(n) {
+  document.querySelectorAll('.modal-tab').forEach((t,i) => t.classList.toggle('active', i === n));
+  document.querySelectorAll('.tab-panel').forEach((p,i) => p.classList.toggle('active', i === n));
+  currentTab = n;
+}
+
+function openAddModal() {
+  state.editingId = null;
+  document.getElementById('modal-title').textContent = '＋ New Profile';
+  clearForm();
+  switchTab(0);
+  document.getElementById('edit-overlay').classList.add('open');
+}
+
+function openEditModal(data) {
+  state.editingId = data.id;
+  document.getElementById('modal-title').textContent = `✎ Edit — ${data.name || 'Profile'}`;
+  fillForm(data);
+  switchTab(0);
+  document.getElementById('edit-overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('edit-overlay').classList.remove('open');
+}
+
+function clearForm() {
+  ['name','designation','zone-inp','party-inp','const-inp',
+   'whatsapp','dob','email','address',
+   'fb-id','fb-followers','fb-active','fb-verified',
+   'tw-id','tw-followers','tw-active','tw-verified',
+   'ig-id','ig-followers','ig-active','ig-verified']
+  .forEach(id => { const el = document.getElementById('f-' + id); if (el) el.value = ''; });
+}
+
+function fillForm(d) {
+  const set = (id, val) => { const el = document.getElementById('f-' + id); if (el) el.value = val ?? ''; };
+  set('name', d.name); set('designation', d.designation);
+  set('zone-inp', d.zone); set('party-inp', d.party_district);
+  set('const-inp', d.constituency);
+  set('whatsapp', d.whatsapp_number); set('dob', d.dob);
+  set('email', d.email_id); set('address', d.address);
+  set('fb-id', d.facebook_id); set('fb-followers', d.facebook_followers);
+  set('fb-active', d.facebook_active_status); set('fb-verified', d.facebook_verified_status);
+  set('tw-id', d.twitter_id); set('tw-followers', d.twitter_followers);
+  set('tw-active', d.twitter_active_status); set('tw-verified', d.twitter_verified_status);
+  set('ig-id', d.instagram_id); set('ig-followers', d.instagram_followers);
+  set('ig-active', d.instagram_active_status); set('ig-verified', d.instagram_verified_status);
+}
+
+function readForm() {
+  const g = id => { const el = document.getElementById('f-' + id); return el ? el.value.trim() || null : null; };
+  return {
+    name: g('name'), designation: g('designation'),
+    zone: g('zone-inp'), party_district: g('party-inp'),
+    constituency: g('const-inp'),
+    whatsapp_number: g('whatsapp'), dob: g('dob'),
+    email_id: g('email'), address: g('address'),
+    facebook_id: g('fb-id'),
+    facebook_followers: g('fb-followers') ? parseInt(g('fb-followers')) : null,
+    facebook_active_status: g('fb-active'), facebook_verified_status: g('fb-verified'),
+    twitter_id: g('tw-id'),
+    twitter_followers: g('tw-followers') ? parseInt(g('tw-followers')) : null,
+    twitter_active_status: g('tw-active'), twitter_verified_status: g('tw-verified'),
+    instagram_id: g('ig-id'),
+    instagram_followers: g('ig-followers') ? parseInt(g('ig-followers')) : null,
+    instagram_active_status: g('ig-active'), instagram_verified_status: g('ig-verified'),
+  };
+}
+
+async function saveProfile() {
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const body   = readForm();
+    const method = state.editingId ? 'PUT' : 'POST';
+    const url    = state.editingId ? `/api/profiles/${state.editingId}` : '/api/profiles';
+    const res    = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    closeModal();
+    loadPage(state.currentPage);   // refresh current page
+    loadStats();
+    showToast(state.editingId ? 'Profile updated ✓' : 'Profile created ✓', 'success');
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save Profile';
+  }
+}
+
+// ─────────────────────────── DELETE ──────────────────────────
+let pendingDeleteId = null;
+
+function openDeleteConfirm(id, name) {
+  pendingDeleteId = id;
+  document.getElementById('confirm-title').textContent = 'Delete Profile?';
+  document.getElementById('confirm-msg').textContent   = `"${name || id}" will be permanently deleted.`;
+  document.getElementById('confirm-ok').onclick        = confirmDelete;
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+
+function openBulkDelete() {
+  const selected = gridApi.getSelectedRows();
+  document.getElementById('confirm-title').textContent = `Delete ${selected.length} profiles?`;
+  document.getElementById('confirm-msg').textContent   = 'This action cannot be undone.';
+  document.getElementById('confirm-ok').onclick        = confirmBulkDelete;
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+
+function closeConfirm() {
+  document.getElementById('confirm-overlay').classList.remove('open');
+  pendingDeleteId = null;
+}
+
+async function confirmDelete() {
+  closeConfirm();
+  try {
+    const res = await fetch(`/api/profiles/${pendingDeleteId}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error(await res.text());
+    loadPage(state.currentPage); loadStats();
+    showToast('Profile deleted', 'success');
+  } catch(e) { showToast('Delete failed: ' + e.message, 'error'); }
+}
+
+async function confirmBulkDelete() {
+  const ids = gridApi.getSelectedRows().map(r => r.id);
+  closeConfirm();
+  try {
+    const res = await fetch('/api/profiles/bulk-delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids }),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    loadPage(state.currentPage); loadStats();
+    showToast(`Deleted ${ids.length} profiles`, 'success');
+  } catch(e) { showToast('Bulk delete failed: ' + e.message, 'error'); }
+}
+
+// ─────────────────────────── EXPORT ──────────────────────────
+function exportCsv() {
+  const qs = buildParams();
+  window.location.href = `/api/export/csv?${qs}`;
+  showToast('Export started…', 'info');
+}
+
+// ─────────────────────────── KEYBOARD ────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModal(); closeConfirm(); }
+  if (e.key === 'ArrowRight' && e.altKey) goToPage(state.currentPage + 1);
+  if (e.key === 'ArrowLeft'  && e.altKey) goToPage(state.currentPage - 1);
+});
+
+// ─────────────────────────── EVENTS ──────────────────────────
+let searchTimer;
+document.getElementById('f-search').addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => goToPage(0), 350);
+});
+['f-zone','f-party','f-const','f-desig'].forEach(id => {
+  document.getElementById(id).addEventListener('change', () => goToPage(0));
+});
+
+document.getElementById('btn-add').addEventListener('click', openAddModal);
+document.getElementById('btn-export').addEventListener('click', exportCsv);
+
+document.getElementById('edit-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('edit-overlay')) closeModal();
+});
+document.getElementById('confirm-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('confirm-overlay')) closeConfirm();
+});
+
+// ─────────────────────────── BOOT ────────────────────────────
+(async () => {
+  // Init grid first so it's ready for data
+  initGrid();
+  updatePaginationUI();
+
+  // Load filters and stats in parallel
+  await Promise.all([loadFilterOptions(), loadStats()]);
+
+  // Load first page
+  goToPage(0);
+})();
+</script>
+</body>
+</html>
