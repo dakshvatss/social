@@ -7,7 +7,7 @@ load_dotenv()
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://postgres:<password>$@localhost:5432/social_profiles"
+    "postgresql://postgres:9815387986aA$@localhost:5432/social_profiles"
 )
 
 engine = create_engine(
