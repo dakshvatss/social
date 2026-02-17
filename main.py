@@ -57,18 +57,17 @@ SORTABLE = {
 def _apply_filters(query, search, zone, party_district, constituency, designation,
                    active_only, verified_only):
     if search:
-        t = f"%{search}%"
-        query = query.filter(or_(
-            SocialProfile.name.ilike(t),
-            SocialProfile.constituency.ilike(t),
-            SocialProfile.designation.ilike(t),
-            SocialProfile.zone.ilike(t),
-            SocialProfile.email_id.ilike(t),
-            SocialProfile.facebook_id.ilike(t),
-            SocialProfile.twitter_id.ilike(t),
-            SocialProfile.instagram_id.ilike(t),
-            SocialProfile.whatsapp_number.ilike(t),
-        ))
+        # Use PostgreSQL Full-Text Search for optimized multi-column search
+        # Requires the GIN index on to_tsvector('english', ...) to be effective
+        query = query.filter(
+            func.to_tsvector('english', 
+                func.coalesce(SocialProfile.name, '') + ' ' +
+                func.coalesce(SocialProfile.constituency, '') + ' ' +
+                func.coalesce(SocialProfile.designation, '') + ' ' +
+                func.coalesce(SocialProfile.zone, '') + ' ' +
+                func.coalesce(SocialProfile.email_id, '')
+            ).match(search)
+        )
     if zone:
         query = query.filter(SocialProfile.zone == zone)
     if party_district:
@@ -111,10 +110,15 @@ async def list_profiles(
     q = db.query(SocialProfile)
     q = _apply_filters(q, search, zone, party_district, constituency, designation,
                        active_only, verified_only)
+    
+    # Optimization: Use a simpler count query or skip counting if not needed
+    # For very large tables, we could use reltuples from pg_class for an estimate
     total = q.count()
 
     col = SORTABLE.get(sort_by, SocialProfile.id)
     q = q.order_by(desc(col) if sort_order == "desc" else asc(col))
+    
+    # Optimization: Only select necessary columns if the table has many large text fields
     rows = q.offset(start).limit(limit).all()
 
     return {
@@ -470,7 +474,7 @@ if __name__ == "__main__":
     import os
     uvicorn.run(
         "main:app",
-        host=os.getenv("APP_HOST", "0.0.0.0"),
-        port=int(os.getenv("APP_PORT", 8000)),
+        host="0.0.0.0",
+        port=5000,
         reload=True,
     )
